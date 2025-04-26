@@ -41,8 +41,12 @@ namespace EngageApp.ViewModels
         {
             if (Application.Current.MainWindow is MainWindow mainWindow)
             {
-                // Restore main window
-                mainWindow.RestoreWithAnimation();
+                // Keep track of main window's current position before restoring
+                double left = mainWindow.Left;
+                double top = mainWindow.Top;
+                
+                // Restore main window but keep its position
+                mainWindow.RestoreAtPositionWithAnimation(left, top);
                 
                 // Hide widget
                 _widgetService.HideWidget();
@@ -68,7 +72,17 @@ namespace EngageApp.ViewModels
         private void ExecuteTestWidgetCommand()
         {
             Console.WriteLine("Test widget command executed");
-            _widgetService.ShowWidget();
+            
+            if (_widgetService.IsWidgetVisible)
+            {
+                Console.WriteLine("Widget is currently visible, hiding it");
+                _widgetService.HideWidget();
+            }
+            else
+            {
+                Console.WriteLine("Widget is currently hidden, showing it");
+                _widgetService.ShowWidget();
+            }
         }
     }
 }

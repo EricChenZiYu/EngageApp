@@ -28,7 +28,7 @@ namespace EngageApp.Modules.Widget.Services
             try
             {
                 var screen = GetCurrentScreen();
-                const int margin = 10;
+                const int margin = 20; // increased margin to ensure visibility
                 
                 // Get DPI scaling factors
                 var dpiInfo = GetDpiFactors(window);
@@ -38,19 +38,35 @@ namespace EngageApp.Modules.Widget.Services
                     var (dpiX, dpiY) = dpiInfo.Value;
                     _logger.Debug($"DPI scale: X={dpiX}, Y={dpiY}");
                     
-                    // Calculate the correct position with DPI adjustments
+                    // Better calculation for screen working area
+                    double screenLeft = screen.WorkingArea.Left / dpiX;
+                    double screenTop = screen.WorkingArea.Top / dpiY;
                     double screenWidth = screen.WorkingArea.Width / dpiX;
                     double screenHeight = screen.WorkingArea.Height / dpiY;
                     
-                    double left = screenWidth - window.Width - margin;
-                    double top = margin;
+                    double left = screenLeft + screenWidth - window.ActualWidth - margin;
+                    double top = screenTop + margin;
                     
                     _logger.Debug($"Positioning window at: Left={left}, Top={top} | " +
-                                 $"Screen (DPI adjusted): Width={screenWidth}, Height={screenHeight}");
+                                 $"Screen (DPI adjusted): Left={screenLeft}, Top={screenTop}, Width={screenWidth}, Height={screenHeight}");
+                    
+                    if (left < 0) left = 0;
+                    if (top < 0) top = 0;
                     
                     // Set the position
                     window.Left = left;
                     window.Top = top;
+                    
+                    // Ensure we're still on screen after setting position
+                    if (window.Left + window.ActualWidth > screenLeft + screenWidth)
+                    {
+                        window.Left = screenLeft + screenWidth - window.ActualWidth - 5;
+                    }
+                    
+                    if (window.Top + window.ActualHeight > screenTop + screenHeight)
+                    {
+                        window.Top = screenTop + screenHeight - window.ActualHeight - 5;
+                    }
                 }
                 else
                 {

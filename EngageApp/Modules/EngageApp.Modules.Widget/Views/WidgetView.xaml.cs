@@ -63,8 +63,13 @@ namespace EngageApp.Modules.Widget.Views
                 Topmost = true;
                 Activate();
                 
-                // Force layout update
+                // Force layout update and bring to foreground
                 UpdateLayout();
+                Focus();
+                
+                // Add this animation to draw attention to the widget
+                var storyboard = FindResource("ExpandStoryboard") as Storyboard;
+                storyboard?.Begin();
                 
                 _logger.Debug($"Widget position: Left={Left}, Top={Top}, Width={Width}, Height={Height}, Visibility={Visibility}");
             }

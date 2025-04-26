@@ -106,5 +106,50 @@ namespace EngageApp.Views
             
             storyboard.Begin();
         }
+
+        internal void RestoreAtPositionWithAnimation(double left, double top)
+        {
+            // Make window visible again
+            Visibility = Visibility.Visible;
+            Opacity = 0;
+            
+            // Set initial position
+            Left = left;
+            
+            // Create fade-in animation
+            var storyboard = new Storyboard();
+            
+            var fadeAnimation = new DoubleAnimation
+            {
+                From = 0.0,
+                To = 1.0,
+                Duration = new Duration(System.TimeSpan.FromMilliseconds(500)),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+            
+            // We'll only animate from slightly above current position to maintain location
+            var topAnimation = new DoubleAnimation
+            {
+                From = top - 50, // Start just a bit above the target position
+                To = top,
+                Duration = new Duration(System.TimeSpan.FromMilliseconds(500)),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+
+            Storyboard.SetTarget(fadeAnimation, this);
+            Storyboard.SetTargetProperty(fadeAnimation, new PropertyPath(OpacityProperty));
+            
+            Storyboard.SetTarget(topAnimation, this);
+            Storyboard.SetTargetProperty(topAnimation, new PropertyPath(TopProperty));
+            
+            storyboard.Children.Add(fadeAnimation);
+            storyboard.Children.Add(topAnimation);
+            
+            // Activate window and bring to foreground
+            Activate();
+            Focus();
+            
+            storyboard.Begin();
+        }
     }
 }

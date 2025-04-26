@@ -48,7 +48,26 @@ namespace EngageApp.Modules.Widget.Services
                     InitializeWidget();
                 }
                 
-                _widgetView.ShowWidget();
+                // Make sure widget is created on UI thread
+                Application.Current.Dispatcher.Invoke(() => {
+                    _logger.Debug("ShowWidget called - displaying widget");
+                    
+                    // Ensure window is shown first
+                    _widgetView.Show();
+                    
+                    // Force immediate position calculation
+                    _screenService.PositionWindowTopRight(_widgetView);
+                    
+                    // Ensure widget is visible
+                    _widgetView.Visibility = Visibility.Visible;
+                    _widgetView.Topmost = true;
+                    _widgetView.Activate();
+                    
+                    // Move to foreground explicitly
+                    _widgetView.Focus();
+                    
+                    _logger.Debug($"Widget should now be visible at: Left={_widgetView.Left}, Top={_widgetView.Top}");
+                });
             }
             catch (Exception ex)
             {
