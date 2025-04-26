@@ -30,7 +30,7 @@ namespace EngageApp.ViewModels
             _widgetService = widgetService;
             
             MinimizeCommand = new DelegateCommand(ExecuteMinimizeCommand);
-            CloseCommand = new DelegateCommand(ExecuteCloseCommand);
+            CloseCommand = new DelegateCommand(ExecuteMinimizeCommand);
             TestWidgetCommand = new DelegateCommand(ExecuteTestWidgetCommand);
             
             // Subscribe to widget events
