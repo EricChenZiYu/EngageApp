@@ -28,7 +28,10 @@ namespace EngageApp.Modules.Widget.Services
             try
             {
                 var screen = GetCurrentScreen();
-                const int margin = 20; // increased margin to ensure visibility
+                const int rightMargin = 10; // reduced margin from right
+                
+                // Note: We no longer set the top position here, letting the caller handle it
+                // This allows for the negative top position to ensure flush placement
                 
                 // Get DPI scaling factors
                 var dpiInfo = GetDpiFactors(window);
@@ -40,40 +43,31 @@ namespace EngageApp.Modules.Widget.Services
                     
                     // Better calculation for screen working area
                     double screenLeft = screen.WorkingArea.Left / dpiX;
-                    double screenTop = screen.WorkingArea.Top / dpiY;
                     double screenWidth = screen.WorkingArea.Width / dpiX;
-                    double screenHeight = screen.WorkingArea.Height / dpiY;
                     
-                    double left = screenLeft + screenWidth - window.ActualWidth - margin;
-                    double top = screenTop + margin;
+                    // Calculate horizontal position with reduced right margin
+                    double left = screenLeft + screenWidth - window.ActualWidth - rightMargin;
                     
-                    _logger.Debug($"Positioning window at: Left={left}, Top={top} | " +
-                                 $"Screen (DPI adjusted): Left={screenLeft}, Top={screenTop}, Width={screenWidth}, Height={screenHeight}");
+                    _logger.Debug($"Positioning widget horizontally: Left={left} | " +
+                                 $"Screen: Bounds.Top={screen.Bounds.Top}, WorkingArea.Top={screen.WorkingArea.Top}");
                     
                     if (left < 0) left = 0;
-                    if (top < 0) top = 0;
                     
-                    // Set the position
+                    // Set only the horizontal position
                     window.Left = left;
-                    window.Top = top;
                     
                     // Ensure we're still on screen after setting position
                     if (window.Left + window.ActualWidth > screenLeft + screenWidth)
                     {
                         window.Left = screenLeft + screenWidth - window.ActualWidth - 5;
                     }
-                    
-                    if (window.Top + window.ActualHeight > screenTop + screenHeight)
-                    {
-                        window.Top = screenTop + screenHeight - window.ActualHeight - 5;
-                    }
                 }
                 else
                 {
                     // Fallback positioning without DPI adjustment
-                    window.Left = 100;
-                    window.Top = 100;
-                    _logger.Warning("Failed to get DPI information, using fallback position (100,100)");
+                    window.Left = screen.WorkingArea.Width - 50;
+                    // Don't set top position
+                    _logger.Warning("Failed to get DPI information, using fallback position");
                 }
                 
                 // Ensure visibility and activation
@@ -85,7 +79,7 @@ namespace EngageApp.Modules.Widget.Services
                 
                 // Fallback position
                 window.Left = 100;
-                window.Top = 100;
+                // Don't set top position in fallback either
             }
         }
         

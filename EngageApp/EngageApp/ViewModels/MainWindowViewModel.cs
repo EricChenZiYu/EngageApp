@@ -57,10 +57,53 @@ namespace EngageApp.ViewModels
         {
             if (Application.Current.MainWindow is MainWindow mainWindow)
             {
+                // First show widget to ensure it's positioned at top edge
+                _widgetService.ShowWidget();
+                
+                // Now minimize the main window with animation
                 mainWindow.MinimizeWithAnimation();
                 
-                // Show widget when minimized
-                _widgetService.ShowWidget();
+                // Add a short delay and collapse the widget after window is minimizing
+                Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                    try {
+                        // Very short delay to ensure widget is shown and positioned correctly
+                        System.Threading.Thread.Sleep(200);
+                        
+                        // Try to call the method dynamically to collapse widget
+                        var methodInfo = _widgetService.GetType().GetMethod("CollapseWidget");
+                        if (methodInfo != null)
+                        {
+                            methodInfo.Invoke(_widgetService, null);
+                            Console.WriteLine("Successfully collapsed widget");
+                        }
+                        else
+                        {
+                            // Try the external collapse method as fallback
+                            var widgetViewType = Type.GetType("EngageApp.Modules.Widget.Views.WidgetView, EngageApp.Modules.Widget");
+                            if (widgetViewType != null)
+                            {
+                                // Get all windows of this type
+                                foreach (Window window in Application.Current.Windows)
+                                {
+                                    if (window.GetType() == widgetViewType)
+                                    {
+                                        // Try to call the CollapseWidgetExternally method
+                                        var externalMethod = widgetViewType.GetMethod("CollapseWidgetExternally");
+                                        if (externalMethod != null)
+                                        {
+                                            externalMethod.Invoke(window, null);
+                                            Console.WriteLine("Collapsed widget externally");
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex) {
+                        Console.WriteLine($"Error collapsing widget: {ex.Message}");
+                    }
+                }), System.Windows.Threading.DispatcherPriority.Background);
             }
         }
 

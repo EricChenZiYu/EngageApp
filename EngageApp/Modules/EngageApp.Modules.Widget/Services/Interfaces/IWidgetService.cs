@@ -18,6 +18,11 @@ namespace EngageApp.Modules.Widget.Services.Interfaces
         void HideWidget();
         
         /// <summary>
+        /// Collapses the widget without hiding it
+        /// </summary>
+        void CollapseWidget();
+        
+        /// <summary>
         /// Gets a value indicating whether the widget is visible
         /// </summary>
         bool IsWidgetVisible { get; }

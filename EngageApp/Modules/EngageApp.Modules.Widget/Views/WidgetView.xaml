@@ -10,7 +10,9 @@
         ResizeMode="NoResize"
         ShowInTaskbar="False"
         Topmost="True"
-        Width="30" Height="30"
+        ShowActivated="False"
+        Focusable="False"
+        SizeToContent="WidthAndHeight"
         MouseEnter="Window_MouseEnter"
         MouseLeave="Window_MouseLeave">
     
@@ -18,57 +20,58 @@
         <Storyboard x:Key="ExpandStoryboard">
             <DoubleAnimation Storyboard.TargetName="WidgetBorder" 
                              Storyboard.TargetProperty="Width"
-                             From="30" To="60" Duration="0:0:0.2">
+                             From="15" To="30" Duration="0:0:0.2">
                 <DoubleAnimation.EasingFunction>
                     <QuadraticEase EasingMode="EaseOut"/>
                 </DoubleAnimation.EasingFunction>
             </DoubleAnimation>
             <DoubleAnimation Storyboard.TargetName="WidgetBorder" 
                              Storyboard.TargetProperty="Height"
-                             From="30" To="60" Duration="0:0:0.2">
+                             From="15" To="30" Duration="0:0:0.2">
                 <DoubleAnimation.EasingFunction>
                     <QuadraticEase EasingMode="EaseOut"/>
                 </DoubleAnimation.EasingFunction>
             </DoubleAnimation>
             <DoubleAnimation Storyboard.TargetName="WidgetBorder" 
                              Storyboard.TargetProperty="(Border.Effect).(DropShadowEffect.Opacity)"
-                             From="0.2" To="1" Duration="0:0:0.2"/>
+                             From="0.1" To="0.5" Duration="0:0:0.2"/>
         </Storyboard>
         
         <Storyboard x:Key="CollapseStoryboard">
             <DoubleAnimation Storyboard.TargetName="WidgetBorder" 
                              Storyboard.TargetProperty="Width"
-                             From="60" To="30" Duration="0:0:0.2">
+                             From="30" To="15" Duration="0:0:0.2">
                 <DoubleAnimation.EasingFunction>
                     <QuadraticEase EasingMode="EaseOut"/>
                 </DoubleAnimation.EasingFunction>
             </DoubleAnimation>
             <DoubleAnimation Storyboard.TargetName="WidgetBorder" 
                              Storyboard.TargetProperty="Height"
-                             From="60" To="30" Duration="0:0:0.2">
+                             From="30" To="15" Duration="0:0:0.2">
                 <DoubleAnimation.EasingFunction>
                     <QuadraticEase EasingMode="EaseOut"/>
                 </DoubleAnimation.EasingFunction>
             </DoubleAnimation>
             <DoubleAnimation Storyboard.TargetName="WidgetBorder" 
                              Storyboard.TargetProperty="(Border.Effect).(DropShadowEffect.Opacity)"
-                             From="1" To="0.2" Duration="0:0:0.2"/>
+                             From="0.5" To="0.1" Duration="0:0:0.2"/>
         </Storyboard>
     </Window.Resources>
     
     <Border x:Name="WidgetBorder"
-            Width="30" Height="30"
+            Width="15" Height="15"
             Background="{Binding WidgetBackgroundColor}"
-            CornerRadius="5"
+            CornerRadius="0,0,5,5"
             MouseLeftButtonDown="WidgetBorder_MouseLeftButtonDown"
             RenderOptions.BitmapScalingMode="HighQuality">
         <Border.Effect>
-            <DropShadowEffect x:Name="WidgetGlow" Color="{Binding WidgetGlowColor}" Direction="0" ShadowDepth="0" BlurRadius="10" Opacity="0.2"/>
+            <DropShadowEffect x:Name="WidgetGlow" Color="{Binding WidgetGlowColor}" Direction="0" ShadowDepth="0" BlurRadius="10" Opacity="0.1"/>
         </Border.Effect>
         <TextBlock Text="{Binding WidgetText}" 
                    FontWeight="Bold" 
                    Foreground="{Binding WidgetTextColor}" 
                    HorizontalAlignment="Center" 
-                   VerticalAlignment="Center"/>
+                   VerticalAlignment="Center"
+                   FontSize="10"/>
     </Border>
 </Window> 
