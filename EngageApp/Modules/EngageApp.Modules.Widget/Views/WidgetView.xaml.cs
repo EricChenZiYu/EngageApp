@@ -2,47 +2,61 @@ using System;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
-using EngageApp.Core.Events;
-using EngageApp.Services.Interfaces;
-using Prism.Events;
+using EngageApp.Modules.Widget.Services.Interfaces;
+using EngageApp.Modules.Widget.ViewModels;
 
-namespace EngageApp.Views
+namespace EngageApp.Modules.Widget.Views
 {
+    /// <summary>
+    /// Interaction logic for WidgetView.xaml
+    /// </summary>
     public partial class WidgetView : Window
     {
-        private readonly IEventAggregator _eventAggregator;
-        private readonly IScreenPositionService _screenPositionService;
+        private readonly IWidgetScreenService _screenService;
+        private readonly IWidgetLoggerService _logger;
         private bool _isDragging;
         private Point _dragStartPoint;
+        
+        /// <summary>
+        /// Occurs when the widget is clicked.
+        /// </summary>
+        public event EventHandler WidgetClicked;
+        
+        /// <summary>
+        /// Occurs when the widget is double-clicked.
+        /// </summary>
+        public event EventHandler WidgetDoubleClicked;
 
-        public WidgetView(IEventAggregator eventAggregator, IScreenPositionService screenPositionService)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WidgetView"/> class.
+        /// </summary>
+        /// <param name="screenService">The screen service</param>
+        /// <param name="logger">The logger service</param>
+        public WidgetView(IWidgetScreenService screenService, IWidgetLoggerService logger)
         {
             InitializeComponent();
-            _eventAggregator = eventAggregator;
-            _screenPositionService = screenPositionService;
             
-            // Subscribe to window minimized event
-            _eventAggregator.GetEvent<WindowMinimizedEvent>().Subscribe(ShowWidget);
+            _screenService = screenService;
+            _logger = logger;
             
             // Hide the widget initially
             Visibility = Visibility.Hidden;
         }
         
+        /// <summary>
+        /// Shows the widget.
+        /// </summary>
         public void ShowWidget()
         {
             try
             {
-                Console.WriteLine("ShowWidget called - positioning widget and setting visible");
+                _logger.Debug("ShowWidget called - positioning widget and setting visible");
                 
                 // Ensure the window is created and shown first
                 Show();
                 
-                // First, position at a known good location
-                Left = 100;
-                Top = 100;
-                
-                // Now use the service to position at top-right
-                _screenPositionService.PositionWindowTopRight(this);
+                // Position at top-right
+                _screenService.PositionWindowTopRight(this);
                 
                 // Ensure visibility settings
                 Visibility = Visibility.Visible;
@@ -52,26 +66,30 @@ namespace EngageApp.Views
                 // Force layout update
                 UpdateLayout();
                 
-                Console.WriteLine($"Widget position: Left={Left}, Top={Top}, Width={Width}, Height={Height}, Visibility={Visibility}");
+                _logger.Debug($"Widget position: Left={Left}, Top={Top}, Width={Width}, Height={Height}, Visibility={Visibility}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error showing widget: {ex.Message}");
+                _logger.Error("Error showing widget", ex);
             }
         }
         
-        private void HideWidget()
+        /// <summary>
+        /// Hides the widget.
+        /// </summary>
+        public void HideWidget()
         {
             Visibility = Visibility.Hidden;
+            _logger.Debug("Widget hidden");
         }
         
-        private void Window_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        private void Window_MouseEnter(object sender, MouseEventArgs e)
         {
             var storyboard = FindResource("ExpandStoryboard") as Storyboard;
             storyboard?.Begin();
         }
         
-        private void Window_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        private void Window_MouseLeave(object sender, MouseEventArgs e)
         {
             if (!_isDragging)
             {
@@ -91,16 +109,18 @@ namespace EngageApp.Views
                 // Attach mouse move and mouse up handlers
                 MouseMove += Widget_MouseMove;
                 MouseLeftButtonUp += Widget_MouseLeftButtonUp;
+                
+                // Raise clicked event
+                WidgetClicked?.Invoke(this, EventArgs.Empty);
             }
             else if (e.ClickCount == 2)
             {
                 // Double-click to restore the main window
-                _eventAggregator.GetEvent<WindowRestoreRequestedEvent>().Publish();
-                HideWidget();
+                WidgetDoubleClicked?.Invoke(this, EventArgs.Empty);
             }
         }
         
-        private void Widget_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        private void Widget_MouseMove(object sender, MouseEventArgs e)
         {
             if (_isDragging)
             {
@@ -111,33 +131,8 @@ namespace EngageApp.Views
                 Left += dragOffset.X;
                 Top += dragOffset.Y;
                 
-                // Snap to edges if close enough
-                const double snapDistance = 20;
-                var workingArea = _screenPositionService.GetCurrentScreenWorkingArea(this);
-                
-                // Snap to right edge
-                if (Math.Abs(Left + Width - workingArea.Right) < snapDistance)
-                {
-                    Left = workingArea.Right - Width;
-                }
-                
-                // Snap to left edge
-                if (Math.Abs(Left - workingArea.Left) < snapDistance)
-                {
-                    Left = workingArea.Left;
-                }
-                
-                // Snap to top edge
-                if (Math.Abs(Top - workingArea.Top) < snapDistance)
-                {
-                    Top = workingArea.Top;
-                }
-                
-                // Snap to bottom edge
-                if (Math.Abs(Top + Height - workingArea.Bottom) < snapDistance)
-                {
-                    Top = workingArea.Bottom - Height;
-                }
+                // Snap to edges
+                _screenService.SnapToNearestEdge(this);
             }
         }
         

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Prism.Wpf" Version="8.1.97" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\EngageApp.Core\EngageApp.Core.csproj" />
+    <ProjectReference Include="..\..\Services\EngageApp.Services.Interfaces\EngageApp.Services.Interfaces.csproj" />
+  </ItemGroup>
+</Project> 

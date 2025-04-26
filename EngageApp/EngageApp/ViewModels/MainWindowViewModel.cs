@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using EngageApp.Core.Events;
+using EngageApp.Modules.Widget.Services.Interfaces;
 using EngageApp.Views;
 using Prism.Commands;
 using Prism.Events;
@@ -11,6 +12,7 @@ namespace EngageApp.ViewModels
     public class MainWindowViewModel : BindableBase
     {
         private readonly IEventAggregator _eventAggregator;
+        private readonly IWidgetService _widgetService;
         private string _title = "Engage App";
         public string Title
         {
@@ -22,15 +24,29 @@ namespace EngageApp.ViewModels
         public DelegateCommand CloseCommand { get; private set; }
         public DelegateCommand TestWidgetCommand { get; private set; }
 
-        public MainWindowViewModel(IEventAggregator eventAggregator)
+        public MainWindowViewModel(IEventAggregator eventAggregator, IWidgetService widgetService)
         {
             _eventAggregator = eventAggregator;
+            _widgetService = widgetService;
             
             MinimizeCommand = new DelegateCommand(ExecuteMinimizeCommand);
             CloseCommand = new DelegateCommand(ExecuteCloseCommand);
             TestWidgetCommand = new DelegateCommand(ExecuteTestWidgetCommand);
             
-            _eventAggregator.GetEvent<WindowRestoreRequestedEvent>().Subscribe(HandleWindowRestoreRequested);
+            // Subscribe to widget events
+            _widgetService.WidgetDoubleClicked += WidgetService_WidgetDoubleClicked;
+        }
+
+        private void WidgetService_WidgetDoubleClicked(object sender, EventArgs e)
+        {
+            if (Application.Current.MainWindow is MainWindow mainWindow)
+            {
+                // Restore main window
+                mainWindow.RestoreWithAnimation();
+                
+                // Hide widget
+                _widgetService.HideWidget();
+            }
         }
 
         private void ExecuteMinimizeCommand()
@@ -38,6 +54,9 @@ namespace EngageApp.ViewModels
             if (Application.Current.MainWindow is MainWindow mainWindow)
             {
                 mainWindow.MinimizeWithAnimation();
+                
+                // Show widget when minimized
+                _widgetService.ShowWidget();
             }
         }
 
@@ -46,22 +65,10 @@ namespace EngageApp.ViewModels
             Application.Current.Shutdown();
         }
         
-        private void HandleWindowRestoreRequested()
-        {
-            if (Application.Current.MainWindow is MainWindow mainWindow)
-            {
-                mainWindow.RestoreWithAnimation();
-            }
-        }
-
         private void ExecuteTestWidgetCommand()
         {
             Console.WriteLine("Test widget command executed");
-            // Use the application instance to show the widget for testing
-            if (Application.Current is App app)
-            {
-                app.ShowWidgetForTesting();
-            }
+            _widgetService.ShowWidget();
         }
     }
 }

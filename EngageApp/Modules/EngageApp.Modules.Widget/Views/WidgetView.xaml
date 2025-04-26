@@ -1,4 +1,4 @@
-<Window x:Class="EngageApp.Views.WidgetView"
+<Window x:Class="EngageApp.Modules.Widget.Views.WidgetView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:prism="http://prismlibrary.com/"
@@ -58,14 +58,17 @@
     
     <Border x:Name="WidgetBorder"
             Width="30" Height="30"
-            Background="#FF0000"
+            Background="{Binding WidgetBackgroundColor}"
             CornerRadius="5"
             MouseLeftButtonDown="WidgetBorder_MouseLeftButtonDown"
             RenderOptions.BitmapScalingMode="HighQuality">
         <Border.Effect>
-            <DropShadowEffect Color="#FF0000" Direction="0" ShadowDepth="0" BlurRadius="10" Opacity="0.2"/>
+            <DropShadowEffect x:Name="WidgetGlow" Color="{Binding WidgetGlowColor}" Direction="0" ShadowDepth="0" BlurRadius="10" Opacity="0.2"/>
         </Border.Effect>
-        <TextBlock Text="W" FontWeight="Bold" Foreground="White" 
-                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock Text="{Binding WidgetText}" 
+                   FontWeight="Bold" 
+                   Foreground="{Binding WidgetTextColor}" 
+                   HorizontalAlignment="Center" 
+                   VerticalAlignment="Center"/>
     </Border>
 </Window> 

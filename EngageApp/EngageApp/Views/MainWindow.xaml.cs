@@ -2,8 +2,8 @@
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
-using Prism.Events;
 using EngageApp.Core.Events;
+using Prism.Events;
 
 namespace EngageApp.Views
 {
@@ -12,12 +12,9 @@ namespace EngageApp.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly IEventAggregator _eventAggregator;
-
-        public MainWindow(IEventAggregator eventAggregator)
+        public MainWindow()
         {
             InitializeComponent();
-            _eventAggregator = eventAggregator;
         }
 
         private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -65,10 +62,8 @@ namespace EngageApp.Views
             storyboard.Children.Add(fadeAnimation);
             storyboard.Completed += (s, e) => 
             {
-                // Hide window and publish minimized event
+                // Hide window
                 Visibility = Visibility.Hidden;
-                Console.WriteLine("Publishing WindowMinimizedEvent");
-                _eventAggregator.GetEvent<WindowMinimizedEvent>().Publish();
             };
             
             storyboard.Begin();
