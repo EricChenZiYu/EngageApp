@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Prism.DryIoc" Version="8.1.97" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EngageApp.Core\EngageApp.Core.csproj" />
+    <ProjectReference Include="..\Modules\EngageApp.Modules.ModuleName\EngageApp.Modules.ModuleName.csproj" />
+    <ProjectReference Include="..\Services\EngageApp.Services.Interfaces\EngageApp.Services.Interfaces.csproj" />
+    <ProjectReference Include="..\Services\EngageApp.Services\EngageApp.Services.csproj" />
+  </ItemGroup>
+</Project>
